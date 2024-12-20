@@ -1,0 +1,27 @@
+package selenium;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+public class OpenGoogle {
+
+	public static void main(String[] args) {
+		//1. Open Chrome
+		//2. Google home page
+		
+		System.setProperty("webdriver.chrome.driver","C:\\Users\\LENOVO\\eclipse-workspace\\Ponnusamy\\SeleniumTutorials\\Driver\\chromedriver.exe");
+		WebDriver driver = new ChromeDriver();
+		driver.get("https://www.google.co.in/");
+		
+		//1. Open Firefox
+		//2. Google home page
+				
+				System.setProperty("webdriver.gecko.driver","C:\\Users\\LENOVO\\Downloads\\geckodriver-v0.35.0-win-aarch64\\geckodriver.exe");
+				WebDriver driver1 = new FirefoxDriver();
+				driver1.get("https://www.google.co.in/");
+	
+
+	}
+
+}

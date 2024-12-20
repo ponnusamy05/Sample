@@ -1,0 +1,13 @@
+package selenium;
+
+public class OpenGoogle {
+
+	public static void main(String[] args) {
+		//1. Open Chrome
+		//2. Google home page
+		
+		System.setProperty("webdriver.chrome.driver","C:\\Users\\LENOVO\\Downloads\\chromedriver-win64\\chromedriver-win64");
+
+	}
+
+}

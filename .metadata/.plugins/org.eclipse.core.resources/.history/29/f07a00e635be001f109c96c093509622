@@ -1,0 +1,18 @@
+package com.test;
+import java.util.HashSet;
+import java.util.Set;
+public class Hi {
+	
+	public static void main(String[] args) {
+        String s1 = "aab";
+        String s2 = "XYZ";
+        boolean result = areEqualCharacterSets(s1, s2);
+        
+        //System.out.println(true);  // This will always print 'true'
+    }
+
+	private static boolean areEqualCharacterSets(String s1, String s2) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+}

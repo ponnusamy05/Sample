@@ -1,0 +1,267 @@
+package co.ponnusamy;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+
+import org.openqa.selenium.Alert;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+
+public class BaseFile {
+	public static WebDriver driver; 
+	public static JavascriptExecutor javascriptExecutor = (JavascriptExecutor) driver;
+	public static File file;
+	public static Workbook book;
+	public static Sheet sheet;
+	public static Row row;
+	public static Cell cell;
+    public static FileInputStream fIS;
+	public static FileOutputStream fOS;
+    
+	public void getDriver(String browserType) {
+
+		switch (browserType) {	
+		case "chrome":
+			WebDriverManager.chromedriver().setup();
+			driver=new ChromeDriver();
+			break;
+
+		case "Edge":
+			WebDriverManager.edgedriver().setup();
+			driver=new EdgeDriver();
+			break;		
+		default:
+			System.out.println("Invalid_BrowserType");
+		}
+	}
+
+	public void windowMaximize() {
+		driver.manage().window().maximize();	
+	}
+	public void windowMinimize() {
+		driver.manage().window().minimize();
+	}
+
+	public void geturl(String url) {
+		driver.get(url);		
+	}
+
+	public void takesScreenshot(String name) throws IOException {
+		TakesScreenshot ts = (TakesScreenshot)driver;
+		File sourcefile = ts.getScreenshotAs(OutputType.FILE);
+		File targetfile = new File("C:\\Users\\Subburam\\eclipse-workspace\\manickbhai\\Screenshots\\"+name+".jpeg");
+		FileUtils.copyFile(sourcefile, targetfile);	
+	}
+
+	public String getText(WebElement element) {
+		String text=element.getText();
+		return text;
+	}
+
+	public void sendkeysByJava(WebElement element,String keysToSend) {
+		element.sendKeys(keysToSend);
+	}
+
+	public void clickByJava(WebElement element) {
+		element.click();
+	}
+
+	public void sendkeysByJSE(WebElement element, String keysToSend) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		javascriptExecutor.executeScript("arguiments[0].setAttribute('value','"+keysToSend+"')", element);
+	}
+
+	public void clickByJSE (WebElement element) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		javascriptExecutor.executeScript("arguments[0].click(", element);
+	}
+
+	public void scrollByJSE(WebElement element, String scrollType) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		switch(scrollType) {
+		case "Up":
+			javascriptExecutor.executeScript("arguments[0].scrollIntoView(true)",element);
+			break;
+		case "Down":
+			javascriptExecutor.executeScript("arguments[0].scrollIntoView(false)",element);
+			break;
+		default:
+			System.out.println("Invalid Scroll Type");
+			break;
+		}
+	}
+
+	public void selectDropdownByValue(WebElement element, String value) {
+		Select select= new Select(element);
+		select.selectByValue(value);}
+	public void selectDropdownByIndex(WebElement element, int index) {
+		Select select1= new Select(element);
+		select1.selectByIndex(index); }
+	public void selectDropdownByText(WebElement element, String visibleText) {
+		Select select2= new Select(element);
+		select2.selectByVisibleText(visibleText);
+	}
+
+	public void alertToCancel(WebElement element, String alertButton) {
+		switch (alertButton) {
+		case "ok":
+			Alert alert = driver.switchTo().alert();
+			alert.accept();
+			break;
+		case "cancel":
+			Alert ale = driver.switchTo().alert();
+			alert.dismiss();
+			break;
+		default:System.out.println("Invalid popup alert");
+			break;
+		}	
+	}
+
+	
+	public void windowsHandling(int indexOfRequiredWindows) {
+		String parentWindowID = driver.getWindowHandle();
+		Set<String>allWindowsID = driver.getWindowHandles();
+
+		//to create Empty list
+		List<String> list = new LinkedList<String>();
+
+		//to add all values from set to list 
+		list.addAll(allWindowsID);
+		String requiredWindowsID = list.get(indexOfRequiredWindows);
+		driver.switchTo().window(requiredWindowsID);
+	}
+
+	//(OR)
+
+	public String getWindowsID(int indexOfRequiredWindows) {
+		String parentWindowID = driver.getWindowHandle();
+		Set<String>allWindowsID = driver.getWindowHandles();
+
+		List<String> list = new LinkedList<String>(); 
+		list.addAll(allWindowsID);
+		String requiredWindowsID = list.get(indexOfRequiredWindows);
+		return requiredWindowsID;
+	}
+
+	public void switchToWindows(String requiredWindowsID) {
+		driver.switchTo().window(requiredWindowsID);
+	}
+
+	public void navigation (String commands) {
+		switch (commands) {
+		case "refresh":
+			driver.navigate().refresh();
+			break;
+		case "forward":
+			driver.navigate().forward();
+			break;
+		case "backward":
+			driver.navigate().back();
+			break;
+
+		default:
+			System.out.println("Invalid navigation command");
+			break;
+		}	
+	}
+
+	public void dragAndDrop(WebElement source, WebElement target) {
+		Actions actions = new Actions(driver);
+		actions.dragAndDrop(source, target).build().perform();
+	}
+
+	//frames
+	public void switchToFrames(WebElement element) {
+		driver.switchTo().frame(element);
+	}
+
+	public String getPropertyValues(String key) throws IOException {
+		//to Locate where the file is 
+		file = new File ("DataBase\\config.Properties");
+		FileReader fileReader = new FileReader(file);  //or v can use FileInputStream also bt FileReader is prfr to property File
+		Properties properties = new Properties ();
+		properties.load(fileReader);
+		String property = properties.getProperty(key);
+		return property;
+	}
+
+	public void elementValidation(WebElement element, String message) {
+		if(element.isDisplayed()) {
+			if(element.isEnabled()) {
+				System.out.println(message);
+			} }
+	}	
+
+	//Excel file in project (if we put this as static then no need to call obj directly call method)
+	public String getDataFromExcel (String sheetName, int rownum, int cellnum) throws IOException {
+
+		File file= new File ("DataBase\\loki.xlsx");
+	    fIS = new FileInputStream(file);
+		Workbook book = new XSSFWorkbook(fIS);
+		Sheet sheet = book.getSheet(sheetName);
+		Row row = sheet.getRow(rownum);
+		Cell cell = row.getCell(cellnum);
+
+		//to get cellType String Numeric
+		CellType cellType = cell.getCellType();
+
+		//to declare Dummy variable
+		String value=null; 
+
+		switch (cellType) {
+		case STRING:
+			value = cell.getStringCellValue();
+			break;
+		case NUMERIC:
+			if (DateUtil.isCellDateFormatted(cell)) {			
+				Date dateCellValue = cell.getDateCellValue();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+				value = simpleDateFormat.format(dateCellValue);
+				break;
+			}		
+		default: System.out.println("invalid cell value");
+		break;
+		}
+		return value;
+	}
+
+	//To writeExcel 
+	public void writeExcel(WebElement element,int rownum,int cellnum,String sucessMessage, String failureMessage) throws IOException {
+		file=new File("DataBase\\loki.xlsx");
+		fOS = new FileOutputStream(file);
+		book=new XSSFWorkbook();	
+		cell = sheet.createRow(rownum).createCell(cellnum);
+		if (element.isDisplayed()) {
+			cell.setCellValue(sucessMessage);
+		}else {
+			cell.setCellValue(failureMessage);
+		}
+		book.write(fOS);
+	}
+	//(OR)
+
+	public void writeExcelValidate(WebElement element,int rownum,int cellnum) throws IOException {
+		cell = sheet.createRow(rownum).createCell(cellnum);
+		 fOS = new FileOutputStream(file);
+		if(element.isDisplayed()){
+			cell.setCellValue("PASS");
+		}else {
+			cell.setCellValue("FAIL");
+		}
+		book.write(fOS);
+	}
+
+}

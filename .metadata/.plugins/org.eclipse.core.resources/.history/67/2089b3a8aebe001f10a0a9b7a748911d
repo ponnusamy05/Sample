@@ -1,0 +1,274 @@
+package co.base;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
+
+import io.github.bonigarcia.wdm.WebDriverManager;
+
+public class BaseStep {
+	public static WebDriver driver;
+	public static JavascriptExecutor javascriptExecutor;
+
+	public void getDriver(String browserType) {
+
+		switch (browserType) {
+		case "Chrome":
+			WebDriverManager.chromedriver().setup();
+			driver = new ChromeDriver();
+
+			break;
+
+		case "Edge":
+			WebDriverManager.edgedriver().setup();
+			driver = new EdgeDriver();
+			break;
+
+		default:
+			System.out.println("InValid_BrowserType");
+			break;
+		}
+
+	}
+
+	public void getUrl(String url) {
+		driver.get(url);
+	}
+
+	public void sendKeysByJava(WebElement element, String keysToSend) {
+		element.sendKeys(keysToSend);
+	}
+
+	public void sendKeysByJS(WebElement element, String keysToSend) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		javascriptExecutor.executeScript("arguments[0].setAttribute('value','" + keysToSend + "')", element);
+
+	}
+
+	public void clickByJS(WebElement element) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		javascriptExecutor.executeScript("arguments[0].click()", element);
+	}
+
+	public void scrollByJS(WebElement element, String scrollType) {
+
+		javascriptExecutor = (JavascriptExecutor) driver;
+
+		switch (scrollType) {
+		case "Up":
+			javascriptExecutor.executeScript("arguments[0].scrollIntoView(false)", element);
+			break;
+
+		case "Down":
+			javascriptExecutor.executeScript("arguments[0].scrollIntoView(true)", element);
+			break;
+
+		default:
+			System.out.println("InValid Scroll Type");
+			break;
+		}
+
+	}
+
+	// All input data's attribute name is called value
+	public String getAttributeByJava(WebElement element) {
+		String attribute = element.getAttribute("value");
+
+		return attribute;
+	}
+
+	public String getText(WebElement element) {
+		String text = element.getText();
+		return text;
+	}
+
+	public Object getAttributeByJS(WebElement element) {
+		javascriptExecutor = (JavascriptExecutor) driver;
+		Object executeScript = javascriptExecutor.executeScript("return arguments[0].getAttribute('value')", element);
+
+		return executeScript;
+	}
+
+	public void clickByJava(WebElement element) {
+		element.click();
+	}
+
+	public void screenShot(String name) throws IOException {
+		// Type Casting
+		TakesScreenshot takesScreenshot = (TakesScreenshot) driver;
+		File sourceFile = takesScreenshot.getScreenshotAs(OutputType.FILE);
+		File targteFile = new File(
+				"C:\\Users\\hp\\eclipse-workspace\\NovemberEndFramework11.00AMBatch2024\\ErrorImages\\" + name
+						+ ".png");
+		FileUtils.copyFile(sourceFile, targteFile);
+
+	}
+
+	public void SelectByValue(WebElement element, String value) {
+
+		Select select = new Select(element);
+		select.selectByValue(value);
+
+	}
+
+	public void SelectByVisibleText(WebElement element, String value) {
+
+		Select select = new Select(element);
+		select.selectByVisibleText(value);
+
+	}
+
+	public void sleep(long millis) throws InterruptedException {
+		Thread.sleep(millis);
+	}
+
+	public void windowsHandling(int indexOfRequiredWindows) {
+
+		String parentWindowsID = driver.getWindowHandle();
+		Set<String> allWindowsID = driver.getWindowHandles();
+
+		// To Create Empty List
+		List<String> list = new LinkedList<String>();
+		// To Add all the values from Set to List
+		list.addAll(allWindowsID);
+
+		String requiredWindowsID = list.get(indexOfRequiredWindows);
+
+		driver.switchTo().window(requiredWindowsID);
+
+	}
+
+	public String getWindowsID(int indexOfRequiredWindows) {
+
+		String parentWindowsID = driver.getWindowHandle();
+		Set<String> allWindowsID = driver.getWindowHandles();
+
+		// To Create Empty List
+		List<String> list = new LinkedList<String>();
+		// To Add all the values from Set to List
+		list.addAll(allWindowsID);
+
+		String requiredWindowsID = list.get(indexOfRequiredWindows);
+
+		return requiredWindowsID;
+	}
+
+	public void switchToWindows(String requiredWindowsID) {
+		driver.switchTo().window(requiredWindowsID);
+	}
+
+	public void navigation(String commands) {
+
+		switch (commands) {
+		case "refresh":
+			driver.navigate().refresh();
+			break;
+
+		case "forward":
+			driver.navigate().forward();
+			break;
+
+		case "back":
+			driver.navigate().back();
+			break;
+
+		default:
+			System.out.println("InValid Navigation Commands");
+			break;
+		}
+	}
+
+	public void dragAndDrop(WebElement source, WebElement target) {
+
+		Actions actions = new Actions(driver);
+		actions.dragAndDrop(source, target).build().perform();
+
+	}
+
+	public void switchToFrames(WebElement element) {
+		driver.switchTo().frame(element);
+	}
+
+	public static String getDataFromExcel(String sheetName, int rownum, int cellnum) throws IOException {
+
+		// To Locate where the File
+		File file = new File("DataBase\\JD.xlsx");
+
+		// To get File as a Input
+		FileInputStream fileInputStream = new FileInputStream(file); // throws FileNotFoundException
+
+		// To Define Workbook XSSFWorkbook || HSSFWorkBook
+		Workbook book = new XSSFWorkbook(fileInputStream); // throws IOException
+
+		// to get Sheet from Book
+		Sheet sheet = book.getSheet(sheetName);
+
+		// to get Row from sheet
+		Row row = sheet.getRow(rownum);
+
+		// To get Cell from Row
+		Cell cell = row.getCell(cellnum);
+
+		// To get Cell Type STRING NUMERIC
+		CellType cellType = cell.getCellType();
+
+		// to declare dummy variable
+		String value = null;
+
+		switch (cellType) {
+		case STRING:
+			value = cell.getStringCellValue();
+
+			break;
+
+		case NUMERIC:
+
+			if (DateUtil.isCellDateFormatted(cell)) {
+
+				Date dateCellValue = cell.getDateCellValue();
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+				value = simpleDateFormat.format(dateCellValue);
+
+			} else {
+
+				double numericCellValue = cell.getNumericCellValue();
+				BigDecimal valueOf = BigDecimal.valueOf(numericCellValue);
+				value = valueOf.toString();
+			}
+
+			break;
+
+		default:
+			System.out.println("In Valid Cell Type");
+			break;
+		}
+
+		return value;
+
+	}
+
+}
