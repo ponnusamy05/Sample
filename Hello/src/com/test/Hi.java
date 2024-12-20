@@ -11,6 +11,7 @@ public class Hi {
             // Inner loop for numbers in each row
             for (int j = 1; j <= i; j++) {
                 if (j > 1) {
+                	System.out.println("*");
                     System.out.print("*");  // Print '*' between numbers
                 }
                 System.out.print(num); // Print the current number
